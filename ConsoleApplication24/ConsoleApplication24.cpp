@@ -64,48 +64,142 @@ void zapolnenie(char mass[10][10]) {
 		}
 	}
 }
-void printer(char mass[10][10]) {
+void printer(char mass[10][10], bool show) {
 	cout << "  A B C D E F G H I J" <<endl;
 	for (int i = 0;i < 10;i++) {
-		cout << i<<' ';
+		cout << i << ' ';
 		for (int j = 0;j < 10;j++) {
-			cout << mass[i][j]<<' ';
+			if(mass[i][j] == '#' and !show) 
+				cout << "~ ";
+			else 
+				cout << mass[i][j] << ' ';
 		}
 		cout << endl;
 	}
 }
-void shooting(char Coutmass[10][10], char mass[10][10]) {
+void shooting(char mass[10][10]) {
 	int cordA, cordB;
 	char b[3];
 	cin >> b;
 	cordB = int(b[0]) - 65;
-	cordA = int(b[1])-48;
+	cordA = int(b[1]) - 48;
 	if (mass[cordA][cordB] == '~') {
-		Coutmass[cordA][cordB] = '-';
+		mass[cordA][cordB] = '?';
 		return;
 	}
 	if (mass[cordA][cordB] == '#' and ((cordA > 0 and mass[cordA - 1][cordB] == '#') or (cordA < 9 and mass[cordA + 1][cordB] == '#') or (cordB > 0 and mass[cordA][cordB - 1] == '#') or (cordB < 9 and mass[cordA][cordB + 1] == '#') or ((cordA < 9 and cordB>0) and mass[cordA + 1][cordB - 1] == '#') or ((cordA < 9 and cordB < 9) and mass[cordA + 1][cordB + 1] == '#') or ((cordA > 0 and cordB < 9) and mass[cordA - 1][cordB + 1] == '#') or ((cordA > 0 and cordB > 0) and mass[cordA - 1][cordB - 1] == '#'))){
-		Coutmass[cordA][cordB] = '+';
+		mass[cordA][cordB] = '+';
 		return;
 	}
-	Coutmass[cordA][cordB] = '*';
+	if ((cordA == 0 or mass[cordA - 1][cordB] != '+') and (cordA == 9 or mass[cordA + 1][cordB] != '+') and (cordB == 0 or mass[cordA][cordB - 1] != '+') and (cordB == 9 or mass[cordA][cordB + 1] != '+')) {
+		for (int i = -1;i < 2;i++) {
+			for (int j = -1;j < 2;j++) {
+				if (i == 0 and j == 0) {
+					continue;
+				}
+				if(cordA+i >=0 and cordA + i<=9 and cordB + j >= 0 and cordB + j <= 9)
+					mass[cordA + i][cordB + j] = '?';
+			}
+		}
+		mass[cordA][cordB] ='*';
+		return;
+	}
+	mass[cordA][cordB] = '+';
+	int cordA2 = cordA;
+	int cordB2 = cordB;
+	if (mass[cordA + 1][cordB] == '+' or mass[cordA - 1][cordB] == '+') {
+		while (cordA2<=9 and mass[cordA2][cordB2] == '+') {
+			if (cordB2 > 0) {
+				mass[cordA2][cordB2 - 1] = '?';
+			}
+			if (cordB2 < 9) {
+				mass[cordA2][cordB2 + 1] = '?';
+			}
+			mass[cordA2][cordB2] = '*';
+			cordA2++;
+		}
+		if (cordA2 <= 9) {
+			mass[cordA2][cordB2] = '?';
+			if(cordB2 > 0)
+				mass[cordA2][cordB2 - 1] = '?';
+			if(cordB2 <9)
+				mass[cordA2][cordB2 + 1] = '?';
+		}
+		while (cordA2 >= 0 and mass[cordA2][cordB2] == '+') {
+			if (cordB2 > 0) {
+				mass[cordA2][cordB2 - 1] = '?';
+			}
+			if (cordB2 < 9) {
+				mass[cordA2][cordB2 + 1] = '?';
+			}
+			mass[cordA2][cordB2] = '*';
+			cordA2--;
+		}
+		if (cordA2 >= 0) {
+			mass[cordA2][cordB2] = '?';
+			if (cordB2 > 0)
+				mass[cordA2][cordB2 - 1] = '?';
+			if (cordB2 < 9)
+				mass[cordA2][cordB2 + 1] = '?';
+		}
+	}
+	else {
+		while (cordB2 <= 9 and mass[cordA2][cordB2] == '+') {
+			if (cordA2 > 0) {
+				mass[cordA2-1][cordB2] = '?';
+			}
+			if (cordA2 < 9) {
+				mass[cordA2+1][cordB2] = '?';
+			}
+			mass[cordA2][cordB2] = '*';
+			cordB2++;
+		}
+		if (cordB2 <= 9) {
+			mass[cordA2][cordB2] = '?';
+			if (cordA2 > 0)
+				mass[cordA2-1][cordB2] = '?';
+			if (cordA2 < 9)
+				mass[cordA2+1][cordB2] = '?';
+		}
+		while (cordB2 >= 0 and mass[cordA2][cordB2] == '+') {
+			if (cordA2 > 0) {
+				mass[cordA2-1][cordB2] = '?';
+			}
+			if (cordA2 < 9) {
+				mass[cordA2+1][cordB2] = '?';
+			}
+			mass[cordA2][cordB2] = '*';
+			cordB2--;
+		}
+		if (cordB2 >= 0) {
+			mass[cordA2][cordB2] = '?';
+			if (cordB2 > 0)
+				mass[cordA2-1][cordB2] = '?';
+			if (cordB2 < 9)
+				mass[cordA2+1][cordB2] = '?';
+		}
+	}
 }
 int main()
 {
 	srand(time(0));
 	char bot[10][10];
 	char human[10][10];
-	char Coutbot[10][10];
 	for (int i = 0;i < 10;i++) {
 		for (int j = 0;j < 10;j++) {
 			bot[i][j] = '~';
 			human[i][j] = '~';
-			Coutbot[i][j] = '~';
 		}
 	}
 	zapolnenie(bot);
-	/*zapolnenie(human);*/
-	printer(bot);
-	shooting(Coutbot, bot);
-	printer(Coutbot);
+	zapolnenie(human);
+	printer(bot, true);
+	shooting(bot);
+	printer(bot, false);
+	shooting(bot);
+	printer(bot, false);
+	shooting(bot);
+	printer(bot, false);
+	shooting(bot);
+	printer(bot, false);
 }
