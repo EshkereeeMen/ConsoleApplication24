@@ -77,12 +77,61 @@ void printer(char mass[10][10], bool show) {
 		cout << endl;
 	}
 }
-void shooting(char mass[10][10]) {
+void NavigateAI(char mass[10][10]) {
+	int x=-1, y=-1;
+	for (int i = 0;i < 10;i++) {
+		for (int j = 0;j < 10;j++) {
+			if (mass[i][j] == '+') {
+				x = i;
+				y = j;
+				break;
+			}
+		}
+	}
+	if (x == -1) {
+		do {
+			x = rand() % 10;
+			y = rand() % 10;
+		} while (mass[x][y] != '~');
+		shooting(mass, x, y);
+		return;
+	}
+	if (x < 9 and mass[x + 1][y] == '+') {
+		bool high;
+		high = rand() % 2;
+		for (int i = 0;i < 2;i++) {
+			switch (high)
+			{
+			case true:
+				if (x > 0 and mass[x - 1][y] == '-') {
+					high = false;
+					continue;
+				}
+				if (x > 0) {
+					shooting(mass, x - 1, y);
+					return;
+				}
+				high = false;
+				break;
+			case false:
+				if (x<9 and mass[x+1][y])
+			}
+		}
+
+
+	}
+		
+
+}
+void NavigateHuman(char mass[10][10]) {
 	int cordA, cordB;
 	char b[3];
 	cin >> b;
 	cordB = int(b[0]) - 65;
 	cordA = int(b[1]) - 48;
+	shooting(mass, cordA, cordB);
+}
+bool shooting(char mass[10][10], int cordA, int cordB) {
 	if (mass[cordA][cordB] == '~') {
 		mass[cordA][cordB] = '?';
 		return;
@@ -194,12 +243,5 @@ int main()
 	zapolnenie(bot);
 	zapolnenie(human);
 	printer(bot, true);
-	shooting(bot);
-	printer(bot, false);
-	shooting(bot);
-	printer(bot, false);
-	shooting(bot);
-	printer(bot, false);
-	shooting(bot);
-	printer(bot, false);
+
 }
