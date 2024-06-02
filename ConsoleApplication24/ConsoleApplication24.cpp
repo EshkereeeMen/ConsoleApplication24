@@ -293,7 +293,7 @@ void NavigateHuman(char mass[10][10]) {
 
 int main()
 {
-	std::system("mode con cols=22 lines=27");
+	std::system("mode con cols=22 lines=26");
 	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO structCursorInfo;
 	GetConsoleCursorInfo(handle, &structCursorInfo);
