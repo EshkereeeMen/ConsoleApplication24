@@ -1,5 +1,22 @@
 ﻿#include <iostream>
+#include <Windows.h>
+
 using namespace std;
+int Myquantity = 20;
+int Enemyquantity = 20;
+void printer(char mass[10][10], bool show) {
+	cout << "  A B C D E F G H I J" << endl;
+	for (int i = 0;i < 10;i++) {
+		cout << i << ' ';
+		for (int j = 0;j < 10;j++) {
+			if (mass[i][j] == '#' and !show)
+				cout << "~ ";
+			else
+				cout << mass[i][j] << ' ';
+		}
+		cout << endl;
+	}
+}
 bool isFit(char mass[10][10], int x1, int y1, int size) {
 	size--;
 	int x2 =x1, y2 = y1;
@@ -64,17 +81,104 @@ void zapolnenie(char mass[10][10]) {
 		}
 	}
 }
-void printer(char mass[10][10], bool show) {
-	cout << "  A B C D E F G H I J" <<endl;
-	for (int i = 0;i < 10;i++) {
-		cout << i << ' ';
-		for (int j = 0;j < 10;j++) {
-			if(mass[i][j] == '#' and !show) 
-				cout << "~ ";
-			else 
-				cout << mass[i][j] << ' ';
+bool shooting(char mass[10][10], int cordA, int cordB) {
+	if (mass[cordA][cordB] == '~') {
+		mass[cordA][cordB] = '?';
+		return false;
+	}
+	if (mass[cordA][cordB] == '#' and ((cordA > 0 and mass[cordA - 1][cordB] == '#') or (cordA < 9 and mass[cordA + 1][cordB] == '#') or (cordB > 0 and mass[cordA][cordB - 1] == '#') or (cordB < 9 and mass[cordA][cordB + 1] == '#') or ((cordA < 9 and cordB>0) and mass[cordA + 1][cordB - 1] == '#') or ((cordA < 9 and cordB < 9) and mass[cordA + 1][cordB + 1] == '#') or ((cordA > 0 and cordB < 9) and mass[cordA - 1][cordB + 1] == '#') or ((cordA > 0 and cordB > 0) and mass[cordA - 1][cordB - 1] == '#'))) {
+		mass[cordA][cordB] = '+';
+		return true;
+	}
+	if ((cordA == 0 or mass[cordA - 1][cordB] != '+') and (cordA == 9 or mass[cordA + 1][cordB] != '+') and (cordB == 0 or mass[cordA][cordB - 1] != '+') and (cordB == 9 or mass[cordA][cordB + 1] != '+')) {
+		for (int i = -1; i < 2; i++) {
+			for (int j = -1; j < 2; j++) {
+				if (i == 0 and j == 0) {
+					continue;
+				}
+				if (cordA + i >= 0 and cordA + i <= 9 and cordB + j >= 0 and cordB + j <= 9) mass[cordA + i][cordB + j] = '?';
+			}
 		}
-		cout << endl;
+		mass[cordA][cordB] = '*';
+		return true;
+	}
+	mass[cordA][cordB] = '+';
+	int cordA2 = cordA;
+	int cordB2 = cordB;
+	if (mass[cordA + 1][cordB] == '+' or mass[cordA - 1][cordB] == '+') {
+		while (cordA2 <= 9 and mass[cordA2][cordB2] == '+') {
+			if (cordB2 > 0) {
+				mass[cordA2][cordB2 - 1] = '?';
+			}
+			if (cordB2 < 9) {
+				mass[cordA2][cordB2 + 1] = '?';
+			}
+			mass[cordA2][cordB2] = '*';
+			cordA2++;
+		}
+
+		if (cordA2 <= 9) {
+			mass[cordA2][cordB2] = '?';
+			if (cordB2 > 0)
+				mass[cordA2][cordB2 - 1] = '?';
+			if (cordB2 < 9)
+				mass[cordA2][cordB2 + 1] = '?';
+		}
+		cordA--;
+		while (cordA >= 0 and mass[cordA][cordB] == '+') {
+			if (cordB > 0) {
+				mass[cordA][cordB - 1] = '?';
+			}
+			if (cordB < 9) {
+				mass[cordA][cordB + 1] = '?';
+			}
+			mass[cordA][cordB] = '*';
+			cordA--;
+		}
+		if (cordA >= 0) {
+			mass[cordA][cordB] = '?';
+			if (cordB > 0)
+				mass[cordA][cordB - 1] = '?';
+			if (cordB < 9)
+				mass[cordA][cordB + 1] = '?';
+		}
+	}
+	else {
+		while (cordB2 <= 9 and mass[cordA2][cordB2] == '+') {
+			if (cordA2 > 0) {
+				mass[cordA2 - 1][cordB2] = '?';
+			}
+			if (cordA2 < 9) {
+				mass[cordA2 + 1][cordB2] = '?';
+			}
+			mass[cordA2][cordB2] = '*';
+			cordB2++;
+		}
+		if (cordB2 <= 9) {
+			mass[cordA2][cordB2] = '?';
+			if (cordA2 > 0)
+				mass[cordA2 - 1][cordB2] = '?';
+			if (cordA2 < 9)
+				mass[cordA2 + 1][cordB2] = '?';
+		}
+		cordB--;
+		while (cordB >= 0 and mass[cordA][cordB] == '+') {
+			if (cordA > 0) {
+				mass[cordA - 1][cordB] = '?';
+			}
+			if (cordA < 9) {
+				mass[cordA + 1][cordB] = '?';
+			}
+			mass[cordA][cordB] = '*';
+			cordB--;
+		}
+		if (cordB >= 0) {
+			mass[cordA][cordB] = '?';
+			if (cordB > 0)
+				mass[cordA - 1][cordB] = '?';
+			if (cordB < 9)
+				mass[cordA + 1][cordB] = '?';
+		}
 	}
 }
 void NavigateAI(char mass[10][10]) {
@@ -92,36 +196,90 @@ void NavigateAI(char mass[10][10]) {
 		do {
 			x = rand() % 10;
 			y = rand() % 10;
-		} while (mass[x][y] != '~');
-		shooting(mass, x, y);
+		} while (mass[x][y] == '?');
+		if (shooting(mass, x, y))
+			Myquantity--;
 		return;
 	}
 	if (x < 9 and mass[x + 1][y] == '+') {
-		bool high;
-		high = rand() % 2;
+		bool high = rand() % 2;
 		for (int i = 0;i < 2;i++) {
 			switch (high)
 			{
 			case true:
-				if (x > 0 and mass[x - 1][y] == '-') {
-					high = false;
-					continue;
-				}
-				if (x > 0) {
-					shooting(mass, x - 1, y);
+				if (x > 0 and mass[x - 1][y] != '?') {
+					if(shooting(mass, x-1, y))
+						Myquantity--;
 					return;
 				}
 				high = false;
 				break;
 			case false:
-				if (x<9 and mass[x+1][y])
+				if (x < 9 and mass[x + 1][y] != '?') {
+					if (shooting(mass, x+1, y))
+						Myquantity--;
+					return;
+				}
+				high = true;
+				break;
 			}
 		}
-
-
 	}
-		
-
+	else if(y<9 and mass[x][y+1] =='+') {
+		bool left = rand() % 2;
+		for (int i = 0;i < 2;i++) {
+			switch (left)
+			{
+			case true:
+				if (y > 0 and mass[x][y-1] != '?') {
+					if (shooting(mass, x, y-1))
+						Myquantity--;
+					return;
+				}
+				left = false;
+				break;
+			case false:
+				if (y < 9 and mass[x][y+1] != '?') {
+					if (shooting(mass, x, y+1))
+						Myquantity--;
+					return;
+				}
+				left = true;
+				break;
+			}
+		}
+	}
+	else {
+		bool h = rand() % 2;
+		for (int i = 0;i < 2;i++) {
+			if (h) {
+				bool left = rand() % 2;
+				if (left and y > 0 and mass[x][y - 1] != '?') {
+					if (shooting(mass, x, y-1))
+						Myquantity--;
+					return;
+				}
+				else if (!left and y < 9 and mass[x][y + 1] != '?') {
+					if (shooting(mass, x, y+1))
+						Myquantity--;
+					return;
+				}
+			}
+			bool high = rand() % 2;
+			if (high and x > 0 and mass[x - 1][y] != '?') {
+				if (shooting(mass, x-1, y))
+					Myquantity--;
+				
+				return;
+			}
+			else if (!high and x < 9 and mass[x + 1][y] != '?') {
+				if (shooting(mass, x+1, y))
+					Myquantity--;
+				return;
+			}
+			h = !h;
+		}
+	}
 }
 void NavigateHuman(char mass[10][10]) {
 	int cordA, cordB;
@@ -129,108 +287,18 @@ void NavigateHuman(char mass[10][10]) {
 	cin >> b;
 	cordB = int(b[0]) - 65;
 	cordA = int(b[1]) - 48;
-	shooting(mass, cordA, cordB);
+	if (shooting(mass, cordA, cordB))
+		Enemyquantity--;
 }
-bool shooting(char mass[10][10], int cordA, int cordB) {
-	if (mass[cordA][cordB] == '~') {
-		mass[cordA][cordB] = '?';
-		return;
-	}
-	if (mass[cordA][cordB] == '#' and ((cordA > 0 and mass[cordA - 1][cordB] == '#') or (cordA < 9 and mass[cordA + 1][cordB] == '#') or (cordB > 0 and mass[cordA][cordB - 1] == '#') or (cordB < 9 and mass[cordA][cordB + 1] == '#') or ((cordA < 9 and cordB>0) and mass[cordA + 1][cordB - 1] == '#') or ((cordA < 9 and cordB < 9) and mass[cordA + 1][cordB + 1] == '#') or ((cordA > 0 and cordB < 9) and mass[cordA - 1][cordB + 1] == '#') or ((cordA > 0 and cordB > 0) and mass[cordA - 1][cordB - 1] == '#'))){
-		mass[cordA][cordB] = '+';
-		return;
-	}
-	if ((cordA == 0 or mass[cordA - 1][cordB] != '+') and (cordA == 9 or mass[cordA + 1][cordB] != '+') and (cordB == 0 or mass[cordA][cordB - 1] != '+') and (cordB == 9 or mass[cordA][cordB + 1] != '+')) {
-		for (int i = -1;i < 2;i++) {
-			for (int j = -1;j < 2;j++) {
-				if (i == 0 and j == 0) {
-					continue;
-				}
-				if(cordA+i >=0 and cordA + i<=9 and cordB + j >= 0 and cordB + j <= 9)
-					mass[cordA + i][cordB + j] = '?';
-			}
-		}
-		mass[cordA][cordB] ='*';
-		return;
-	}
-	mass[cordA][cordB] = '+';
-	int cordA2 = cordA;
-	int cordB2 = cordB;
-	if (mass[cordA + 1][cordB] == '+' or mass[cordA - 1][cordB] == '+') {
-		while (cordA2<=9 and mass[cordA2][cordB2] == '+') {
-			if (cordB2 > 0) {
-				mass[cordA2][cordB2 - 1] = '?';
-			}
-			if (cordB2 < 9) {
-				mass[cordA2][cordB2 + 1] = '?';
-			}
-			mass[cordA2][cordB2] = '*';
-			cordA2++;
-		}
-		if (cordA2 <= 9) {
-			mass[cordA2][cordB2] = '?';
-			if(cordB2 > 0)
-				mass[cordA2][cordB2 - 1] = '?';
-			if(cordB2 <9)
-				mass[cordA2][cordB2 + 1] = '?';
-		}
-		while (cordA2 >= 0 and mass[cordA2][cordB2] == '+') {
-			if (cordB2 > 0) {
-				mass[cordA2][cordB2 - 1] = '?';
-			}
-			if (cordB2 < 9) {
-				mass[cordA2][cordB2 + 1] = '?';
-			}
-			mass[cordA2][cordB2] = '*';
-			cordA2--;
-		}
-		if (cordA2 >= 0) {
-			mass[cordA2][cordB2] = '?';
-			if (cordB2 > 0)
-				mass[cordA2][cordB2 - 1] = '?';
-			if (cordB2 < 9)
-				mass[cordA2][cordB2 + 1] = '?';
-		}
-	}
-	else {
-		while (cordB2 <= 9 and mass[cordA2][cordB2] == '+') {
-			if (cordA2 > 0) {
-				mass[cordA2-1][cordB2] = '?';
-			}
-			if (cordA2 < 9) {
-				mass[cordA2+1][cordB2] = '?';
-			}
-			mass[cordA2][cordB2] = '*';
-			cordB2++;
-		}
-		if (cordB2 <= 9) {
-			mass[cordA2][cordB2] = '?';
-			if (cordA2 > 0)
-				mass[cordA2-1][cordB2] = '?';
-			if (cordA2 < 9)
-				mass[cordA2+1][cordB2] = '?';
-		}
-		while (cordB2 >= 0 and mass[cordA2][cordB2] == '+') {
-			if (cordA2 > 0) {
-				mass[cordA2-1][cordB2] = '?';
-			}
-			if (cordA2 < 9) {
-				mass[cordA2+1][cordB2] = '?';
-			}
-			mass[cordA2][cordB2] = '*';
-			cordB2--;
-		}
-		if (cordB2 >= 0) {
-			mass[cordA2][cordB2] = '?';
-			if (cordB2 > 0)
-				mass[cordA2-1][cordB2] = '?';
-			if (cordB2 < 9)
-				mass[cordA2+1][cordB2] = '?';
-		}
-	}
-}
+
 int main()
 {
+	std::system("mode con cols=22 lines=27");
+	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO structCursorInfo;
+	GetConsoleCursorInfo(handle, &structCursorInfo);
+	structCursorInfo.bVisible = FALSE;
+	SetConsoleCursorInfo(handle, &structCursorInfo);
 	srand(time(0));
 	char bot[10][10];
 	char human[10][10];
@@ -242,6 +310,23 @@ int main()
 	}
 	zapolnenie(bot);
 	zapolnenie(human);
-	printer(bot, true);
-
+	cout << "bot\'s map" << endl;
+	printer(bot, false);
+	cout << "your map" << endl;
+	printer(human, true);
+	while(Myquantity != 0 and Enemyquantity!=0) {
+		NavigateHuman(bot);
+		system("cls");
+		NavigateAI(human);
+		cout << "bot\'s map" << endl;
+		printer(bot, false);
+		cout << "your map" << endl;
+		printer(human, true);
+	}
+	if (Myquantity == 0) {
+		cout << "Defeat(((";
+	}
+	else {
+		cout << "WIIIN";
+	}
 }
